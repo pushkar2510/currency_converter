@@ -11,6 +11,7 @@ class CurrencyConverterMaterialPage extends StatefulWidget{
 
 class _CurrencyConverterMaterialPageState extends State{
   double result=0;
+  double exchangeRate=86.19;
   final TextEditingController _controller = TextEditingController(); 
   
   @override
@@ -107,7 +108,7 @@ class _CurrencyConverterMaterialPageState extends State{
                 onPressed: () {
                 // print(_controller.text);
                 // print(double.parse(_controller.text)*81);
-                result = double.parse(_controller.text)*81;
+                result = double.parse(_controller.text)*exchangeRate;
                 setState(() {
                   
                 });                
