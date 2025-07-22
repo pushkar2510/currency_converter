@@ -1,5 +1,8 @@
 //import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class CurrencyConverterMaterialPage extends StatefulWidget{
   const CurrencyConverterMaterialPage({super.key});
@@ -14,6 +17,41 @@ class _CurrencyConverterMaterialPageState extends State{
   double exchangeRate=86.19;
   final TextEditingController _controller = TextEditingController(); 
   
+  
+  @override
+  void initState() {
+    super.initState();
+    fetchExchangeRate();
+  }
+
+  Future<void> fetchExchangeRate() async {
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        print("No internet. Using default rate.");
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse("https://api.exchangerate-api.com/v4/latest/USD"),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final double rate = data['rates']['INR'];
+        setState(() {
+          exchangeRate = rate;
+        });
+        print("Fetched live exchange rate: $rate");
+      } else {
+        print("API call failed. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching exchange rate: $e");
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     print('rebuilt');
@@ -106,12 +144,12 @@ class _CurrencyConverterMaterialPageState extends State{
                                               //such as text or hint or func such as hoverOver etc.
                 //func for what the button will perform when pressed
                 onPressed: () {
-                // print(_controller.text);
-                // print(double.parse(_controller.text)*81);
-                result = double.parse(_controller.text)*exchangeRate;
-                setState(() {
-                  
-                });                
+                  final input = _controller.text;
+                  if (input.isNotEmpty) {
+                    setState(() {
+                      result = double.parse(input) * exchangeRate;
+                    });
+                  }
                 },           
               ),
             )
